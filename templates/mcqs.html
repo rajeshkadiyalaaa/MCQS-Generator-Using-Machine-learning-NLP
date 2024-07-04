@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated MCQs</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            text-align: left;
+            margin-top: 5%;
+        }
+        .card-body {
+            text-align: left;
+        }
+        .correct-answer {
+            display: none;
+            color: rgb(0, 66, 0); /* Style correct answer text */
+        }
+        .incorrect-answer {
+            color: rgb(165, 0, 0); /* Style incorrect answer text */
+        }
+        .result-message {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Start of content -->
+    <h1 class="mt-4 text-center">Generated MCQs</h1>
+    <div class="container" id="mcqs-container">
+        {% for index, mcq in mcqs %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Q{{ index + 1 }}: {{ mcq['question_stem'] }}?</h5>
+                    <form>
+                        {% set options = ['A', 'B', 'C', 'D'] %}
+                        {% for choice in mcq['answer_choices'] %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="answer{{ index }}" id="choice{{ index }}{{ loop.index0 }}" value="{{ choice }}">
+                                <label class="form-check-label" for="choice{{ index }}{{ loop.index0 }}">
+                                    {{ options[loop.index0] }}: {{ choice }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </form>
+                    <!-- Display the correct answer with a class -->
+                    <small class="text-muted correct-answer">Correct Answer: {{ mcq['correct_answer'] }}</small>
+                </div>
+            </div>
+        {% endfor %}
+        <!-- Button to show results -->
+        <button id="show-results-btn" class="btn btn-primary">Show Results</button>
+        <!-- Container for result message -->
+        <div id="result-message" class="result-message mt-3" style="display: none;"></div>
+    </div>
+    <!-- End of content -->
+
+    <!-- JavaScript to handle showing results and styling -->
+    <script>
+        document.getElementById('show-results-btn').addEventListener('click', function() {
+            // Get all elements with the 'correct-answer' class
+            var correctAnswers = document.getElementsByClassName('correct-answer');
+            var selectedAnswers = document.querySelectorAll('input[type=radio]:checked');
+            var resultMessage = document.getElementById('result-message');
+            var correctCount = 0;
+
+            // Loop through each element and display it
+            for (var i = 0; i < correctAnswers.length; i++) {
+                correctAnswers[i].style.display = 'inline'; // Display correct answers
+            }
+
+            // Loop through selected answers to check correctness
+            for (var j = 0; j < selectedAnswers.length; j++) {
+                var answerIndex = selectedAnswers[j].id.slice(-1); // Get the index of selected answer
+                var answerLabel = document.querySelector('label[for=choice' + answerIndex + '0]').textContent; // Get the label text
+                var correctAnswer = correctAnswers[answerIndex].textContent.trim(); // Get correct answer text
+
+                // Check if selected answer is correct or incorrect and apply styles
+                if (answerLabel.includes(correctAnswer)) {
+                    selectedAnswers[j].parentNode.classList.add('text-success'); // Add green color to correct answers
+                    selectedAnswers[j].parentNode.classList.remove('text-danger'); // Remove red color from incorrect answers
+                    correctCount++;
+                } else {
+                    selectedAnswers[j].parentNode.classList.add('text-danger'); // Add red color to incorrect answers
+                    selectedAnswers[j].parentNode.classList.remove('text-success'); // Remove green color from correct answers
+                }
+            }
+
+            // Show result message
+            resultMessage.innerHTML = 'You got ' + correctCount + ' out of ' + correctAnswers.length + ' correct.';
+            resultMessage.style.display = 'block';
+
+            // Hide the button after showing results
+            this.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
